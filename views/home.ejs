@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+</head>
+<body>
+    <main class="p-4 w-screen h-screen bg-gray-100 dark: bg-gray-800">
+        <button onclick="showPopUp()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Upload File
+        </button>
+        <div class="pop fixed hidden backdrop-blur top-0 left-0 h-screen w-screen flex items-center justify-center"> 
+            <form action="/upload-file" method="post" enctype="multipart/form-data">         
+                <div class="flex items-center justify-center w-96">
+                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                        </div>
+                        <input id="dropzone-file" type="file" name="file" class="hidden" />
+                    </label>
+                </div>
+                
+                <button type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Upload File
+                </button>
+            </form>
+            <button onclick="hidePopUp()" class="absolute top-4 right-4 text-gray-500 dark:text-gray-400 text-xl">
+                <i class="ri-close-line"></i>
+            </button>      
+        </div>
+    </main>
+    <script>
+        function showPopUp(){
+            document.querySelector('.pop').style.display = 'flex'
+        }
+
+        function hidePopUp(){
+            document.querySelector('.pop').style.display = 'none'
+        }
+
+        async function fetchFiles() {
+            const response = await fetch('/files');
+            const data = await response.json();
+            const fileList = document.getElementById('file-list-content');
+            fileList.innerHTML = '';
+    
+            if (data.files.length === 0) {
+                fileList.innerHTML = '<li>No files uploaded yet.</li>';
+                return;
+            }
+    
+            data.files.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<a href="/uploads/${file}" target="_blank" class="text-blue-600 hover:underline">${file}</a>
+                                      <button onclick="deleteFile('${file}')" class="ml-4 text-red-600 hover:underline">Delete</button>`;
+                fileList.appendChild(listItem);
+            });
+        }
+    
+        fetchFiles();
+
+        async function deleteFile(filename) {
+            const response = await fetch(`/files/${filename}`, {
+                method: 'DELETE',
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+                fetchFiles(); 
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+</body>
+</html>

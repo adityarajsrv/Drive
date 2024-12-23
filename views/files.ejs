@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Files</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-800">
+    <main class="p-4 w-screen h-screen">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">Uploaded Files</h1>
+        <a href="/home" class="text-blue-600 hover:underline mb-4 inline-block">Go Back</a>
+        <div class="bg-white p-6 rounded-lg shadow-md dark:bg-gray-700">
+            <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <% if (files.length === 0) { %>
+                    <li class="col-span-full text-gray-600 dark:text-gray-300">No files uploaded yet.</li>
+                <% } else { %>
+                    <% files.forEach(file => { %>
+                        <li class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                            <% if (file.isImage) { %>
+                                <img src="<%= file.path %>" alt="<%= file.name %>" class="w-full h-40 object-cover rounded-md mb-4">
+                            <% } else { %>
+                                <div class="w-full h-40 bg-gray-200 dark:bg-gray-600 rounded-md flex items-center justify-center text-gray-500 dark:text-gray-300 mb-4">
+                                    <i class="ri-file-line text-4xl"></i>
+                                </div>
+                            <% } %>
+                            <p class="text-gray-800 dark:text-gray-200 truncate"><%= file.name %></p>
+                            <div class="flex justify-between items-center mt-2">
+                                <a href="<%= file.path %>" download class="text-blue-600 hover:underline">Download</a>
+                                <button onclick="deleteFile('<%= file.name %>')" class="text-red-600 hover:underline">Delete</button>
+                            </div>
+                        </li>
+                    <% }); %>
+                <% } %>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        async function deleteFile(filename) {
+            const response = await fetch(`/files/${filename}`, {
+                method: 'DELETE',
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+                window.location.reload(); 
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
+</body>
+</html>
